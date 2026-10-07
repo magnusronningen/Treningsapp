@@ -1,4 +1,4 @@
-import ExerciseCard from "@/components/ExerciseCard";
+import ExerciseCard from "@/components/exercise/ExerciseCard";
 import type { Exercise } from "@/utils/exercise";
 import { exercises as initialExercises } from "@/utils/exercisesDummy";
 import { useState } from "react";
