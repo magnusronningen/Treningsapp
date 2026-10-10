@@ -10,7 +10,7 @@ export default function ExerciseCard({
   exercise,
   onDelete,
 }: ExerciseCardProps) {
-  // Bekreft sletting - TODO: fiske alert for ios og android
+  // Bekreft sletting - TODO: fikse alert for ios og android
   function handleDelete() {
     const confirmed = window.confirm(
       `Er du sikker på at du vil slette ${exercise.name}?`,

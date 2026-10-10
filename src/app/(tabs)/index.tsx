@@ -1,4 +1,4 @@
-import TodaysWorkoutCard from "@/components/TodaysWorkoutCard";
+import TodaysWorkoutCard from "@/components/workout/TodaysWorkoutCard";
 import { Workout } from "@/utils/workout";
 import { StyleSheet, Text, View } from "react-native";
 

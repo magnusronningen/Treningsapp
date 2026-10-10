@@ -1,127 +1,62 @@
-import ExerciseCard from "@/components/exercise/ExerciseCard";
-import MuscleGroupFilter from "@/components/exercise/MuscleGroupFilter";
-import SearchBar from "@/components/exercise/SearchBar";
-import AddExerciseModal from "@/components/exercise/AddExerciseModal";
-import type { Exercise } from "@/utils/exercise";
-import { exercises as initialExercises } from "@/utils/exercisesDummy";
 import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Pressable, StyleSheet, Text, View, FlatList } from "react-native";
+import type { Workout } from "@/utils/workout";
+import { addWorkout } from "@/utils/workoutsStore";
+import WorkoutCard from "@/components/workout/WorkoutCard";
+import CreateWorkoutModal from "@/components/workout/CreateWorkoutModal";
 
 export default function WorkoutsScreen() {
-  const [exercises, setExercises] = useState<Exercise[]>(initialExercises);
-  const [search, setSearch] = useState("");
-  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("Alle");
-
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [newExerciseName, setNewExerciseName] = useState("");
-  const [newMuscleGroup, setNewMuscleGroup] = useState("");
+  const [workoutName, setWorkoutName] = useState("");
 
-  const [isMuscleGroupMenuVisible, setIsMuscleGroupMenuVisible] =
-    useState(false);
-
-  const muscleGroups = [
-    "Bryst",
-    "Rygg",
-    "Skuldre",
-    "Biceps",
-    "Triceps",
-    "Bein",
-    "Mage",
-    "Annet",
-  ];
-
-  const filterMuscleGroups = ["Alle", ...muscleGroups];
-
-  // Filtrer på søk og/eller muskelgruppe
-  const filteredExercises = exercises.filter((exercise) => {
-    const matchesSearch = exercise.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesMuscleGroup =
-      selectedMuscleGroup === "Alle" ||
-      exercise.muscleGroup === selectedMuscleGroup;
-
-    return matchesSearch && matchesMuscleGroup;
-  });
-
-  // Legg til ny øvelse i listen
-  function addExercise() {
-    if (!newExerciseName.trim() || !newMuscleGroup.trim()) {
-      return;
-    }
-
-    const newExercise: Exercise = {
+  function createWorkout() {
+    const newWorkout: Workout = {
       id: Date.now().toString(),
-      name: newExerciseName.trim(),
-      muscleGroup: newMuscleGroup.trim(),
+      name: workoutName,
+      exercises: [],
     };
 
-    setExercises((prev) => [...prev, newExercise]);
+    addWorkout(newWorkout);
+    setWorkouts((prev) => [...prev, newWorkout]);
 
-    setNewExerciseName("");
-    setNewMuscleGroup("");
     setIsModalVisible(false);
-    setIsMuscleGroupMenuVisible(false);
-  }
-
-  // Slett øvelse
-  function deleteExercise(id: string) {
-    setExercises((prev) => prev.filter((exercise) => exercise.id !== id));
+    setWorkoutName("");
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Øvelser</Text>
+      <Text style={styles.title}>Økter</Text>
 
-      {/* Søkefelt for øvelse */}
-      <SearchBar value={search} onChangeText={setSearch} />
-
-      {/* Filter for muskelgruppe */}
-      <MuscleGroupFilter
-        muscleGroups={filterMuscleGroups}
-        selectedMuscleGroup={selectedMuscleGroup}
-        onSelect={setSelectedMuscleGroup}
-      />
-
-      {/* Legg til øvelse knapp */}
       <Pressable
         style={styles.addButton}
         onPress={() => setIsModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>+ Legg til øvelse</Text>
+        <Text style={styles.addButtonText}>+ Opprett økt</Text>
       </Pressable>
 
-      {/* Modal for å legge til ny øvelse */}
-      <AddExerciseModal
+      <CreateWorkoutModal
         visible={isModalVisible}
-        exerciseName={newExerciseName}
-        muscleGroup={newMuscleGroup}
-        muscleGroups={muscleGroups}
-        isMuscleGroupMenuVisible={isMuscleGroupMenuVisible}
-        onChangeExerciseName={setNewExerciseName}
-        onToggleMuscleGroupMenu={() =>
-          setIsMuscleGroupMenuVisible((prev) => !prev)
-        }
-        onSelectMuscleGroup={(group) => {
-          setNewMuscleGroup(group);
-          setIsMuscleGroupMenuVisible(false);
-        }}
+        workoutName={workoutName}
+        onChangeWorkoutName={setWorkoutName}
         onCancel={() => {
-          setNewExerciseName("");
-          setNewMuscleGroup("");
-          setIsMuscleGroupMenuVisible(false);
+          setWorkoutName("");
           setIsModalVisible(false);
         }}
-        onAdd={addExercise}
+        onCreate={createWorkout}
       />
 
-      {/* Liste med øvelser */}
       <FlatList
-        data={filteredExercises}
+        data={workouts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ExerciseCard exercise={item} onDelete={deleteExercise} />
+          <WorkoutCard
+            workout={item}
+            onPress={() => {
+              router.push(`/workouts/${item.id}`);
+            }}
+          />
         )}
       />
     </View>
@@ -133,22 +68,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+
   title: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
   },
   addButton: {
-    padding: 14,
-    borderRadius: 12,
-    backgroundColor: "#2563eb",
-    alignItems: "center",
-    marginBottom: 20,
+    backgroundColor: "green",
+    padding: 10,
   },
-
   addButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: "white",
   },
 });
